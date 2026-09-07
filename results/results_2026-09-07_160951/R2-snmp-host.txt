@@ -1,0 +1,5 @@
+Notification host: 192.168.99.10	udp-port: 1162	VRFName: MGMT	type: trap
+user: labmon	security model: v3 priv
+
+Notification host: 192.168.99.10	udp-port: 162	VRFName: MGMT	type: trap
+user: labmon	security model: v3 priv

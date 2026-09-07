@@ -1,0 +1,98 @@
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ether 52:54:00:aa:02:01 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic noprefixroute eth0
+       valid_lft 78075sec preferred_lft 67275sec
+    inet6 fec0::5054:ff:feaa:201/64 scope site dynamic noprefixroute flags 100 
+       valid_lft 86383sec preferred_lft 14383sec
+    inet6 fe80::5054:ff:feaa:201/64 scope link 
+       valid_lft forever preferred_lft forever
+3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ether 52:54:00:aa:02:02 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.20.10/24 scope global eth1
+       valid_lft forever preferred_lft forever
+    inet 169.254.199.41/16 brd 169.254.255.255 scope global noprefixroute eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.11/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.12/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.13/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.14/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.15/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.16/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.17/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.18/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.19/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.64/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.65/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.66/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.67/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.68/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.69/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.70/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.71/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.72/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.73/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.74/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.75/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.76/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.77/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.78/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.79/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.80/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.81/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.82/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.83/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.84/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.85/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.86/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.87/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.88/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.89/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.90/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.91/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.92/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever
+    inet 192.168.20.93/24 scope global secondary eth1
+       valid_lft forever preferred_lft forever

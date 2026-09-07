@@ -1,0 +1,9 @@
+robotframework==7.3.2
+robotframework-sshlibrary==3.8.0
+robotframework-requests==0.9.7
+ncclient==0.7.1
+reportlab==5.0.1
+
+# Evaluation only -- see docs/pyats-evaluation.md. The suites in tests/ do not
+# need these; tests_pyats/ does. Needs gcc + python3.14-dev on Python 3.14.
+pyats[full]==26.8

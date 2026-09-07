@@ -1,0 +1,9 @@
+Syslog logging: enabled (0 messages dropped, 3 messages rate-limited, 0 flushes, 0 overruns, xml disabled, filtering disabled)
+    Trap logging: level informational, 2150 message lines logged
+        Logging to 192.168.99.10  (MGMT) (udp port 514, audit disabled,
+001231: .Sep  7 19:08:18.101 UTC: %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.168.99.10 port 514 (MGMT) started - reconnection
+001234: .Sep  7 19:08:29.639 UTC: %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.168.99.10 port 514 (MGMT) started - reconnection
+001655: .Sep  7 19:29:34.838 UTC: %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.168.99.10 port 514 (MGMT) started - reconnection
+001658: .Sep  7 19:29:49.653 UTC: %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.168.99.10 port 514 (MGMT) started - reconnection
+002098: .Sep  7 19:49:48.655 UTC: %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.168.99.10 port 514 (MGMT) started - reconnection
+002101: .Sep  7 19:49:59.699 UTC: %SYS-6-LOGGINGHOST_STARTSTOP: Logging to host 192.168.99.10 port 514 (MGMT) started - reconnection

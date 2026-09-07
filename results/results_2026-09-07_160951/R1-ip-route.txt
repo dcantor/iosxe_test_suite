@@ -1,0 +1,44 @@
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2, m - OMP
+       n - NAT, Ni - NAT inside, No - NAT outside, Nd - NAT DIA
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       H - NHRP, G - NHRP registered, g - NHRP registration summary
+       o - ODR, P - periodic downloaded static route, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
+       & - replicated local route overrides by connected
+
+Gateway of last resort is 10.0.2.2 to network 0.0.0.0
+
+S*    0.0.0.0/0 [254/0] via 10.0.2.2
+      10.0.0.0/8 is variably subnetted, 12 subnets, 3 masks
+C        10.0.2.0/24 is directly connected, GigabitEthernet1
+L        10.0.2.15/32 is directly connected, GigabitEthernet1
+C        10.10.10.0/30 is directly connected, GigabitEthernet2
+L        10.10.10.1/32 is directly connected, GigabitEthernet2
+C        10.10.20.0/30 is directly connected, GigabitEthernet4
+L        10.10.20.1/32 is directly connected, GigabitEthernet4
+C        10.20.1.1/32 is directly connected, Loopback1
+B        10.20.2.1/32 [20/0] via 192.168.100.2, 00:02:32
+B        10.20.3.1/32 [20/0] via 192.168.101.2, 00:11:42
+S        10.30.1.0/24 is directly connected, Null0
+B        10.30.2.0/24 [20/0] via 192.168.100.2, 00:02:32
+B        10.30.3.0/24 [20/0] via 192.168.101.2, 00:11:42
+      172.16.0.0/32 is subnetted, 3 subnets
+C        172.16.1.1 is directly connected, Loopback0
+S        172.16.2.1 is directly connected, Tunnel0
+S        172.16.3.1 is directly connected, Tunnel1
+      192.168.10.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.10.0/24 is directly connected, GigabitEthernet3
+L        192.168.10.1/32 is directly connected, GigabitEthernet3
+B     192.168.20.0/24 [20/0] via 192.168.100.2, 00:02:32
+B     192.168.30.0/24 [20/0] via 192.168.101.2, 00:11:42
+      192.168.100.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.100.0/30 is directly connected, Tunnel0
+L        192.168.100.1/32 is directly connected, Tunnel0
+      192.168.101.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.101.0/30 is directly connected, Tunnel1
+L        192.168.101.1/32 is directly connected, Tunnel1

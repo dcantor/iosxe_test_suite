@@ -1,0 +1,23 @@
+Total active translations: 40 (10 static, 30 dynamic; 0 extended)
+Outside interfaces:
+  Tunnel0, Tunnel1
+Inside interfaces: 
+  GigabitEthernet3
+Hits: 457  Misses: 123
+ Reserved port setting disabled provisioned no
+ Dynamic overload mapping configured: 0
+Expired translations: 126
+Dynamic mappings:
+-- Inside Source
+[Id: 1] access-list NAT-POOL-SRC pool SITE-POOL refcount 30
+ pool SITE-POOL: id 1, netmask 255.255.255.0
+	start 10.30.1.100 end 10.30.1.129
+	type generic, total addresses 30, allocated 30 (100%), misses 3
+[Id: 0] route-map NAT-TO-DOMAIN 
+nat-limit statistics:
+ max entry: max allowed 0, used 0, missed 0
+In-to-out drops: 12  Out-to-in drops: 0
+Pool stats drop: 0  Mapping stats drop: 0
+Port block alloc fail: 0
+IP alias add fail: 0
+Limit entry add fail: 0

@@ -1,0 +1,520 @@
+<title>C8000V IPsec Testbed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  :root{
+    --ground:#f2f5f7;
+    --surface:#ffffff;
+    --surface-2:#e7edf1;
+    --ink:#121c26;
+    --ink-2:#3c4c5a;
+    --muted:#6a7b8a;
+    --rule:#d3dde4;
+    --rule-strong:#b9c7d1;
+    --enc:#0b6e63;
+    --enc-soft:#d6ebe8;
+    --clear:#8f5409;
+    --clear-soft:#f5e7d1;
+    --shadow:0 1px 2px rgba(18,28,38,.06), 0 8px 24px rgba(18,28,38,.05);
+    --sans:'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --serif:'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0e141a;
+      --surface:#161f27;
+      --surface-2:#1e2932;
+      --ink:#e8eff5;
+      --ink-2:#b6c4d0;
+      --muted:#879aa8;
+      --rule:#27333d;
+      --rule-strong:#3a4956;
+      --enc:#43d2c1;
+      --enc-soft:#0f302d;
+      --clear:#e0a44d;
+      --clear-soft:#33260f;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0e141a;
+    --surface:#161f27;
+    --surface-2:#1e2932;
+    --ink:#e8eff5;
+    --ink-2:#b6c4d0;
+    --muted:#879aa8;
+    --rule:#27333d;
+    --rule-strong:#3a4956;
+    --enc:#43d2c1;
+    --enc-soft:#0f302d;
+    --clear:#e0a44d;
+    --clear-soft:#33260f;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.6;
+    margin:0;
+    padding:48px 24px 72px;
+  }
+  .wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+
+  /* ---- header ---- */
+  header{display:flex;flex-direction:column;gap:14px}
+  .eyebrow{
+    font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.16em;
+    color:var(--enc);margin:0;
+  }
+  h1{
+    font-family:var(--sans);font-weight:700;font-size:clamp(30px,5vw,44px);
+    letter-spacing:-.02em;line-height:1.05;margin:0;text-wrap:balance;color:var(--ink);
+  }
+  .lede{margin:0;max-width:70ch;font-size:18px;color:var(--ink-2)}
+
+  .facts{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;
+    background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;
+  }
+  .fact{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:5px}
+  .fact dt{
+    font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;
+    color:var(--muted);margin:0;
+  }
+  .fact dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink);line-height:1.45}
+
+  /* ---- figure ---- */
+  figure{margin:0;display:flex;flex-direction:column;gap:16px}
+  .canvas{
+    background:var(--surface);border:1px solid var(--rule);border-radius:14px;
+    padding:20px;overflow-x:auto;box-shadow:var(--shadow);
+  }
+  .canvas svg{display:block;width:100%;min-width:1020px;height:auto}
+  figcaption{font-size:15px;color:var(--ink-2);max-width:70ch}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px}
+  .key{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.03em;
+    border:1px solid var(--rule);border-radius:999px;padding:5px 11px;
+    background:var(--surface);color:var(--ink-2);
+  }
+  .swatch{width:16px;height:3px;border-radius:2px;flex:none}
+  .swatch.enc{background:var(--enc)}
+  .swatch.clear{background:var(--clear)}
+  .swatch.dash{background:repeating-linear-gradient(90deg,var(--muted) 0 3px,transparent 3px 6px);height:2px}
+
+  /* ---- notes ---- */
+  .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+  .note{
+    background:var(--surface);border:1px solid var(--rule);border-radius:12px;
+    padding:18px 20px;display:flex;flex-direction:column;gap:8px;
+  }
+  .note h3{
+    font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:-.005em;
+    margin:0;color:var(--ink);
+  }
+  .note p{margin:0;font-size:14.5px;color:var(--ink-2)}
+  .note code{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--surface-2);padding:1px 5px;border-radius:4px}
+
+  /* ---- table ---- */
+  .panel{background:var(--surface);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+  .panel-head{
+    padding:14px 20px;border-bottom:1px solid var(--rule);
+    font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink);
+  }
+  .scroller{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+  th,td{padding:10px 20px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+  thead th{
+    font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;
+    color:var(--muted);background:var(--surface-2);
+  }
+  tbody th{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink-2)}
+  td{font-family:var(--mono);font-size:13px;color:var(--ink)}
+
+  footer{
+    font-size:13.5px;color:var(--muted);border-top:1px solid var(--rule);padding-top:20px;
+  }
+  footer code{font-family:var(--mono);font-size:12.5px;color:var(--ink-2)}
+
+  /* ---- svg classes ---- */
+  .frame{fill:none;stroke:var(--rule-strong);stroke-width:1;stroke-dasharray:5 5}
+  .card{fill:var(--surface);stroke:var(--rule-strong);stroke-width:1.25}
+  .card-hub{fill:var(--surface);stroke:var(--enc);stroke-width:2}
+  .role{font-family:var(--sans);font-weight:600;font-size:9.5px;letter-spacing:.1em;fill:var(--muted)}
+  .role-hub{font-family:var(--sans);font-weight:600;font-size:9.5px;letter-spacing:.1em;fill:var(--enc)}
+  .chip{fill:var(--surface-2);stroke:var(--rule);stroke-width:1}
+  .band{fill:var(--surface-2)}
+  .divider{stroke:var(--rule);stroke-width:1}
+  .rtr-name{font-family:var(--sans);font-weight:600;font-size:15px;fill:var(--ink)}
+  .m12{font-family:var(--mono);font-size:12px;fill:var(--ink)}
+  .m11{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+  .m11r{font-family:var(--mono);font-size:11px;fill:var(--ink)}
+  .m10{font-family:var(--mono);font-size:9.5px;fill:var(--muted)}
+  .m10-enc{font-family:var(--mono);font-size:9.5px;fill:var(--enc)}
+  .m10-clear{font-family:var(--mono);font-size:9.5px;fill:var(--clear)}
+  .m9{font-family:var(--mono);font-size:8.5px;fill:var(--muted)}
+  .eyebrow-svg{font-family:var(--sans);font-weight:600;font-size:10px;letter-spacing:.14em;fill:var(--muted)}
+  .tag{font-family:var(--sans);font-weight:600;font-size:9px;letter-spacing:.1em;fill:var(--muted)}
+  .tag-enc{font-family:var(--sans);font-weight:600;font-size:9px;letter-spacing:.1em;fill:var(--enc)}
+  .tag-clear{font-family:var(--sans);font-weight:600;font-size:9px;letter-spacing:.1em;fill:var(--clear)}
+  .wire-esp{stroke:var(--enc);stroke-width:3;stroke-linecap:round}
+  .wire-clear{stroke:var(--clear);stroke-width:2.5;stroke-linecap:round}
+  .wire-mgmt{stroke:var(--muted);stroke-width:1.25;stroke-dasharray:4 4}
+  .wire-encap{stroke:var(--muted);stroke-width:1.25;stroke-dasharray:3 3}
+  .ah-enc{fill:var(--enc)}
+  .ah-clear{fill:var(--clear)}
+  .ah-muted{fill:var(--muted)}
+
+  /* ---- print: the page becomes a wall-chart, not a scrolling document ---- */
+  @media print{
+    @page{size:A3 landscape;margin:12mm}
+    body{padding:0;background:#fff}
+    .wrap{max-width:none;gap:16px}
+    .canvas{box-shadow:none;border-color:#c9d4dc;page-break-inside:avoid}
+    /* A3 landscape leaves ~1030px of height; the header takes ~270, so cap the
+       drawing so it shares page one with the header instead of being orphaned. */
+    .canvas svg{min-width:0;max-width:840px;margin:0 auto}
+    .canvas{padding:12px}
+    figcaption{font-size:12.5px;max-width:none}
+    .legend{gap:6px}
+    figure,.notes,.panel{page-break-inside:avoid}
+    .notes{grid-template-columns:repeat(3,1fr)}
+    h1{font-size:30px}
+    .lede{font-size:13px;max-width:95ch}
+  }
+
+  @media (max-width:640px){
+    body{padding:32px 16px 56px}
+    .wrap{gap:32px}
+  }
+</style>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">LAB REFERENCE</p>
+    <h1>C8000V IPsec Testbed</h1>
+    <p class="lede">A hub-and-spoke fabric of three Catalyst 8000V routers on one Linux host, with an IKEv2/IPsec tunnel from the hub to each spoke carrying eBGP, the protected loopbacks, and traffic between three Linux hosts that run no crypto of their own. Management &#8212; NTP, syslog, SNMP and TACACS+ authentication &#8212; runs entirely on a separate out-of-band network in its own VRF.</p>
+
+    <dl class="facts">
+      <div class="fact"><dt>HOST</dt><dd>Ubuntu 26.04 &#183; QEMU 10.2 / KVM<br>3 routers + 3 hosts + NMS</dd></div>
+      <div class="fact"><dt>IMAGE</dt><dd>c8000v-universalk9<br>_16G_serial.17.15.06</dd></div>
+      <div class="fact"><dt>TOPOLOGY</dt><dd>hub-and-spoke<br>AS 65001 / 65002 / 65003</dd></div>
+      <div class="fact"><dt>COVERAGE</dt><dd>204 tests &#183; 22 suites<br>Robot Framework</dd></div>
+      <div class="fact"><dt>THROUGHPUT</dt><dd>16.5 Mbps measured<br>20 Mbps licence cap</dd></div>
+    </dl>
+  </header>
+
+  <figure>
+    <div class="canvas">
+      <svg viewBox="0 0 1200 840" role="img" aria-label="Hub-and-spoke topology of the three-router Catalyst 8000V testbed on one Linux host. R1 is the hub, with a separate IPsec tunnel to each spoke: Tunnel0 out GigabitEthernet2 to spoke R2 over cleartext link 10.10.10.0/30, and Tunnel1 out GigabitEthernet4 to spoke R3 over 10.10.20.0/30. Both tunnels run IKEv2 with ESP-AES-256 and SHA256. Each router has a Cirros Linux host on its GigabitEthernet3 LAN: h1 at 192.168.10.10 behind the hub, h2 at 192.168.20.10 behind R2, and h3 at 192.168.30.10 behind R3. The spokes have no direct link to each other, so h2 to h3 traffic is decrypted and re-encrypted at the hub and is protected on both legs. eBGP runs inside the tunnels between AS 65001 at the hub and AS 65002 and AS 65003 at the spokes; the hub re-advertises between spokes, which is what makes spoke-to-spoke reachability possible. Every BGP session is MD5 authenticated, tracked by BFD on the tunnel it runs over, and filtered outbound by a per-peer prefix-list wrapped in a route-map, so each router advertises only the prefixes it owns plus, at the hub, the far spoke's Each router also source-NATs its own host into a shared 10.30.0.0/16 domain: h1 is seen as 10.30.1.10, h2 as 10.30.2.10 and h3 as 10.30.3.10 Each host carries three addresses: the .10 address has a static one-to-one mapping, while .11 and .12 are translated from a per-site dynamic pool spanning .100 to .110 Separately from all of that, every router and the NMS also attach to a flat out-of-band management network, 192.168.99.0/24, on an interface held in a VRF called MGMT: the hub at 192.168.99.1 on GigabitEthernet5 and the spokes at .2 and .3 on GigabitEthernet4. The NMS is at 192.168.99.10 and carries the whole management plane on it. It polls all three routers over SNMPv3 authPriv with net-snmp, receives their syslog into rsyslog on port 514 and their SNMPv3 traps into snmptrapd on port 162, with the same traps captured raw on port 1162 so the tests can check the wire format, and serves them time with chrony, itself synchronised to pool.ntp.org through its own NAT interface. None of that management traffic crosses the IPsec tunnels, so a spoke stays manageable with its data path down.">
+        <defs>
+          <marker id="ah-enc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="ah-enc"></path></marker>
+          <marker id="ah-clear" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="ah-clear"></path></marker>
+          <marker id="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="ah-muted"></path></marker>
+        </defs>
+
+        <rect class="frame" x="14" y="14" width="1172" height="806" rx="14"></rect>
+        <text class="eyebrow-svg" x="32" y="38">LINUX HOST &#8212; QEMU / KVM</text>
+        <text class="m10" x="380" y="78" text-anchor="middle">host port forwards</text>
+        <text class="m10" x="810" y="78" text-anchor="middle">Gi1 also reaches out:</text>
+        <text class="m10-clear" x="810" y="90" text-anchor="middle">NTP &#8594; pool.ntp.org</text>
+
+        <rect class="chip" x="40" y="54" width="250" height="38" rx="8"></rect>
+        <text class="m10" x="165" y="71" text-anchor="middle">ssh 2222 &#183; netconf 8832</text>
+        <text class="m10" x="165" y="85" text-anchor="middle">restconf 8442 &#183; console 5002</text>
+        <rect class="chip" x="470" y="54" width="250" height="38" rx="8"></rect>
+        <text class="m10" x="595" y="71" text-anchor="middle">ssh 2221 &#183; netconf 8831</text>
+        <text class="m10" x="595" y="85" text-anchor="middle">restconf 8441 &#183; console 5001</text>
+        <rect class="chip" x="900" y="54" width="250" height="38" rx="8"></rect>
+        <text class="m10" x="1025" y="71" text-anchor="middle">ssh 2223 &#183; netconf 8833</text>
+        <text class="m10" x="1025" y="85" text-anchor="middle">restconf 8443 &#183; console 5003</text>
+
+        <line class="wire-mgmt" x1="260" y1="94" x2="260" y2="222" marker-end="url(#ah-muted)"></line>
+        <line class="wire-mgmt" x1="690" y1="94" x2="690" y2="222" marker-end="url(#ah-muted)"></line>
+        <line class="wire-mgmt" x1="1120" y1="94" x2="1120" y2="222" marker-end="url(#ah-muted)"></line>
+
+        <rect class="card" x="40" y="150" width="250" height="330" rx="10"></rect>
+        <text class="rtr-name" x="56" y="180">c8000v-r2</text>
+        <text class="role" x="56" y="197">SPOKE &#183; AS 65002</text>
+        <line class="divider" x1="40" y1="208" x2="290" y2="208"></line>
+        <text class="m11" x="56" y="232">Gi1</text>
+        <text class="m11r" x="94" y="232">10.0.2.15</text>
+        <text class="tag" x="274" y="232" text-anchor="end">MGMT &#183; NTP</text>
+        <text class="m11" x="56" y="260">Tu0</text>
+        <text class="m11r" x="94" y="260">192.168.100.2</text>
+        <text class="tag-enc" x="274" y="260" text-anchor="end">ESP</text>
+        <text class="m11" x="56" y="288">Lo0</text>
+        <text class="m11r" x="94" y="288">172.16.2.1</text>
+        <text class="tag-enc" x="274" y="288" text-anchor="end">PROT</text>
+        <text class="m11" x="56" y="316">Lo1</text>
+        <text class="m11r" x="94" y="316">10.20.2.1</text>
+        <text class="tag-enc" x="274" y="316" text-anchor="end">BGP</text>
+        <text class="m11" x="56" y="344">Gi2</text>
+        <text class="m11r" x="94" y="344">10.10.10.2</text>
+        <text class="tag-clear" x="274" y="344" text-anchor="end">LINK</text>
+        <text class="m11" x="56" y="372">Gi3</text>
+        <text class="m11r" x="94" y="372">192.168.20.1</text>
+        <text class="tag" x="274" y="372" text-anchor="end">LAN</text>
+
+        <rect class="card-hub" x="470" y="150" width="250" height="330" rx="10"></rect>
+        <text class="rtr-name" x="486" y="180">c8000v-r1</text>
+        <text class="role-hub" x="486" y="197">HUB &#183; AS 65001</text>
+        <line class="divider" x1="470" y1="208" x2="720" y2="208"></line>
+        <text class="m11" x="486" y="232">Gi1</text>
+        <text class="m11r" x="524" y="232">10.0.2.15</text>
+        <text class="tag" x="704" y="232" text-anchor="end">MGMT &#183; NTP</text>
+        <text class="m11" x="486" y="260">Tu0</text>
+        <text class="m11r" x="524" y="260">192.168.100.1</text>
+        <text class="tag-enc" x="704" y="260" text-anchor="end">ESP</text>
+        <text class="m11" x="486" y="288">Tu1</text>
+        <text class="m11r" x="524" y="288">192.168.101.1</text>
+        <text class="tag-enc" x="704" y="288" text-anchor="end">ESP</text>
+        <text class="m11" x="486" y="316">Lo0</text>
+        <text class="m11r" x="524" y="316">172.16.1.1</text>
+        <text class="tag-enc" x="704" y="316" text-anchor="end">PROT</text>
+        <text class="m11" x="486" y="344">Lo1</text>
+        <text class="m11r" x="524" y="344">10.20.1.1</text>
+        <text class="tag-enc" x="704" y="344" text-anchor="end">BGP</text>
+        <text class="m11" x="486" y="372">Gi2</text>
+        <text class="m11r" x="524" y="372">10.10.10.1</text>
+        <text class="tag-clear" x="704" y="372" text-anchor="end">LINK</text>
+        <text class="m11" x="486" y="400">Gi3</text>
+        <text class="m11r" x="524" y="400">192.168.10.1</text>
+        <text class="tag" x="704" y="400" text-anchor="end">LAN</text>
+        <text class="m11" x="486" y="428">Gi4</text>
+        <text class="m11r" x="524" y="428">10.10.20.1</text>
+        <text class="tag-clear" x="704" y="428" text-anchor="end">LINK</text>
+        <text class="m11" x="486" y="456">Gi5</text>
+        <text class="m11r" x="524" y="456">192.168.99.1</text>
+        <text class="tag" x="704" y="456" text-anchor="end">VRF MGMT</text>
+
+        <rect class="card" x="900" y="150" width="250" height="330" rx="10"></rect>
+        <text class="rtr-name" x="916" y="180">c8000v-r3</text>
+        <text class="role" x="916" y="197">SPOKE &#183; AS 65003</text>
+        <line class="divider" x1="900" y1="208" x2="1150" y2="208"></line>
+        <text class="m11" x="916" y="232">Gi1</text>
+        <text class="m11r" x="954" y="232">10.0.2.15</text>
+        <text class="tag" x="1134" y="232" text-anchor="end">MGMT &#183; NTP</text>
+        <text class="m11" x="916" y="260">Tu0</text>
+        <text class="m11r" x="954" y="260">192.168.101.2</text>
+        <text class="tag-enc" x="1134" y="260" text-anchor="end">ESP</text>
+        <text class="m11" x="916" y="288">Lo0</text>
+        <text class="m11r" x="954" y="288">172.16.3.1</text>
+        <text class="tag-enc" x="1134" y="288" text-anchor="end">PROT</text>
+        <text class="m11" x="916" y="316">Lo1</text>
+        <text class="m11r" x="954" y="316">10.20.3.1</text>
+        <text class="tag-enc" x="1134" y="316" text-anchor="end">BGP</text>
+        <text class="m11" x="916" y="344">Gi2</text>
+        <text class="m11r" x="954" y="344">10.10.20.2</text>
+        <text class="tag-clear" x="1134" y="344" text-anchor="end">LINK</text>
+        <text class="m11" x="916" y="400">Gi4</text>
+        <text class="m11r" x="954" y="400">192.168.99.3</text>
+        <text class="tag" x="1134" y="400" text-anchor="end">VRF MGMT</text>
+        <text class="m11" x="916" y="372">Gi3</text>
+        <text class="m11r" x="954" y="372">192.168.30.1</text>
+        <text class="tag" x="1134" y="372" text-anchor="end">LAN</text>
+
+        <text class="m10-enc" x="380.0" y="248" text-anchor="middle">Tu0 &#183; 192.168.100.0/30</text>
+        <line class="wire-esp" x1="294" y1="266" x2="466" y2="266"
+              marker-start="url(#ah-enc)" marker-end="url(#ah-enc)"></line>
+        <text class="m10-enc" x="380.0" y="286" text-anchor="middle">IKEv2 &#183; ESP-AES-256</text>
+        <line class="wire-encap" x1="346.0" y1="304" x2="346.0" y2="344" marker-end="url(#ah-muted)"></line>
+        <text class="m9" x="354.0" y="328">encapsulated</text>
+        <line class="wire-clear" x1="294" y1="360" x2="466" y2="360"
+              marker-start="url(#ah-clear)" marker-end="url(#ah-clear)"></line>
+        <text class="m10-clear" x="380.0" y="378" text-anchor="middle">R1 Gi2 &#8596; R2 Gi2</text>
+        <text class="m10-clear" x="380.0" y="392" text-anchor="middle">10.10.10.0/30 cleartext</text>
+
+        <text class="m10-enc" x="810.0" y="248" text-anchor="middle">Tu1 &#183; 192.168.101.0/30</text>
+        <line class="wire-esp" x1="724" y1="266" x2="896" y2="266"
+              marker-start="url(#ah-enc)" marker-end="url(#ah-enc)"></line>
+        <text class="m10-enc" x="810.0" y="286" text-anchor="middle">IKEv2 &#183; ESP-AES-256</text>
+        <line class="wire-encap" x1="776.0" y1="304" x2="776.0" y2="344" marker-end="url(#ah-muted)"></line>
+        <text class="m9" x="784.0" y="328">encapsulated</text>
+        <line class="wire-clear" x1="724" y1="360" x2="896" y2="360"
+              marker-start="url(#ah-clear)" marker-end="url(#ah-clear)"></line>
+        <text class="m10-clear" x="810.0" y="378" text-anchor="middle">R1 Gi4 &#8596; R3 Gi2</text>
+        <text class="m10-clear" x="810.0" y="392" text-anchor="middle">10.10.20.0/30 cleartext</text>
+
+        <line class="wire-mgmt" x1="165" y1="510" x2="165" y2="542" marker-end="url(#ah-muted)"></line>
+        <text class="m9" x="173" y="530">eth1</text>
+        <line class="wire-mgmt" x1="595" y1="510" x2="595" y2="530"></line>
+        <line class="wire-mgmt" x1="595" y1="530" x2="810" y2="530"></line>
+        <line class="wire-mgmt" x1="595" y1="530" x2="595" y2="542" marker-end="url(#ah-muted)"></line>
+        <line class="wire-mgmt" x1="810" y1="530" x2="810" y2="542" marker-end="url(#ah-muted)"></line>
+        <text class="m9" x="702" y="524" text-anchor="middle">shared segment 192.168.10.0/24</text>
+        <text class="m9" x="588" y="541" text-anchor="end">eth1</text>
+        <text class="m9" x="818" y="541">ens4</text>
+        <line class="wire-mgmt" x1="1025" y1="510" x2="1025" y2="542" marker-end="url(#ah-muted)"></line>
+        <text class="m9" x="1033" y="530">eth1</text>
+
+        <rect class="card" x="65" y="546" width="200" height="118" rx="10"></rect>
+        <text class="rtr-name" x="81" y="574">h2</text>
+        <rect class="chip" x="111" y="560" width="54" height="18" rx="9"></rect>
+        <text class="m10" x="138" y="573" text-anchor="middle">cirros</text>
+        <text class="m11r" x="81" y="600">192.168.20.10-.19</text>
+        <text class="m11r" x="81" y="614">192.168.20.64-.93</text>
+        <text class="m10-clear" x="81" y="630">static &#215;10 &#8594; 10.30.2.10-.19</text>
+        <text class="m10-clear" x="81" y="643">pool &#215;30 &#8594; 10.30.2.100-.129</text>
+        <text class="tag" x="249" y="574" text-anchor="end">NO CRYPTO</text>
+
+        <rect class="card" x="495" y="546" width="200" height="118" rx="10"></rect>
+        <text class="rtr-name" x="511" y="574">h1</text>
+        <rect class="chip" x="541" y="560" width="54" height="18" rx="9"></rect>
+        <text class="m10" x="568" y="573" text-anchor="middle">cirros</text>
+        <text class="m11r" x="511" y="600">192.168.10.10-.19</text>
+        <text class="m11r" x="511" y="614">192.168.10.64-.93</text>
+        <text class="m10-clear" x="511" y="630">static &#215;10 &#8594; 10.30.1.10-.19</text>
+        <text class="m10-clear" x="511" y="643">pool &#215;30 &#8594; 10.30.1.100-.129</text>
+        <text class="tag" x="679" y="574" text-anchor="end">NO CRYPTO</text>
+
+        <rect class="card" x="710" y="546" width="200" height="174" rx="10"></rect>
+        <text class="rtr-name" x="726" y="574">nms</text>
+        <rect class="chip" x="756" y="560" width="54" height="18" rx="9"></rect>
+        <text class="m10" x="783" y="573" text-anchor="middle">ubuntu</text>
+        <text class="m11r" x="726" y="600">192.168.10.20 &#183; 192.168.99.10</text>
+        <text class="m10-clear" x="726" y="618">net-snmp &#183; rsyslog &#183; snmptrapd</text>
+        <text class="m10-clear" x="726" y="631">chrony &#183; tac_plus</text>
+        <text class="m10-enc" x="726" y="647">polls R1-R3 over SNMPv3</text>
+        <text class="m10-enc" x="726" y="660">+ syslog :514 &#183; NTP :123</text>
+        <text class="m10-enc" x="726" y="673">+ traps :162 &#183; TACACS+ :49</text>
+        <text class="tag" x="894" y="574" text-anchor="end">NMS</text>
+
+        <rect class="card" x="925" y="546" width="200" height="118" rx="10"></rect>
+        <text class="rtr-name" x="941" y="574">h3</text>
+        <rect class="chip" x="971" y="560" width="54" height="18" rx="9"></rect>
+        <text class="m10" x="998" y="573" text-anchor="middle">cirros</text>
+        <text class="m11r" x="941" y="600">192.168.30.10-.19</text>
+        <text class="m11r" x="941" y="614">192.168.30.64-.93</text>
+        <text class="m10-clear" x="941" y="630">static &#215;10 &#8594; 10.30.3.10-.19</text>
+        <text class="m10-clear" x="941" y="643">pool &#215;30 &#8594; 10.30.3.100-.129</text>
+        <text class="tag" x="1109" y="574" text-anchor="end">NO CRYPTO</text>
+
+        <text class="m10-enc" x="600" y="782" text-anchor="middle">h2 &#8596; h3 has no direct link: it is decrypted and re-encrypted at the hub, so it is protected on both legs</text>
+        <text class="m10" x="600" y="797" text-anchor="middle">bulk transfers sustain 16.5 Mbps host-to-host, against a 20 Mbps licence cap</text>
+        <line class="wire-mgmt" x1="52" y1="480" x2="52" y2="740"></line>
+        <line class="wire-mgmt" x1="482" y1="480" x2="482" y2="740"></line>
+        <line class="wire-mgmt" x1="1138" y1="480" x2="1138" y2="740"></line>
+        <line class="wire-mgmt" x1="810" y1="720" x2="810" y2="740"></line>
+        <line class="wire-mgmt" x1="52" y1="740" x2="1138" y2="740"></line>
+        <text class="eyebrow-svg" x="600" y="730" text-anchor="middle">OUT-OF-BAND MANAGEMENT &#183; 192.168.99.0/24 &#183; VRF MGMT</text>
+        <text class="m9" x="600" y="756" text-anchor="middle">NTP, syslog, SNMP and TACACS+ ride this network only &#8212; never the tunnels, so a spoke stays manageable with its data path down</text>
+</svg>
+    </div>
+
+    <div class="legend">
+      <span class="key"><span class="swatch enc"></span>encrypted &#8212; ESP</span>
+      <span class="key"><span class="swatch clear"></span>cleartext &#8212; on the wire</span>
+      <span class="key"><span class="swatch dash"></span>encapsulation &amp; management</span>
+    </div>
+
+    <figcaption>Everything above each dashed arrow travels inside ESP; everything below it is readable on the link. The two connectors in each channel are the same physical path &#8212; a tunnel is an overlay that leaves the router through its link interface. The Linux hosts sit outside that boundary entirely and are unaware of it.</figcaption>
+  </figure>
+
+  <section class="notes">
+    <div class="note">
+      <h3>The hub carries a tunnel per spoke</h3>
+      <p>R1 terminates <code>Tunnel0</code> to R2 and <code>Tunnel1</code> to R3 on separate physical interfaces, holding one IKEv2 SA and one BGP session per spoke. Each spoke holds exactly one of each.</p>
+    </div>
+    <div class="note">
+      <h3>Spokes never talk directly</h3>
+      <p>Neither spoke has any route to the other's transport subnet &#8212; a test asserts this. h2 to h3 traffic is decrypted at the hub and re-encrypted onto the second tunnel, so it is protected on both legs.</p>
+    </div>
+    <div class="note">
+      <h3>Reachability comes from BGP, not statics</h3>
+      <p>Each router advertises its own LAN and <code>Loopback1</code>. The hub re-advertises between spokes, so R2 learns R3's prefix with AS path <code>65001 65003</code> and a next hop of the hub's tunnel address.</p>
+    </div>
+    <div class="note">
+      <h3>Two kinds of source NAT, at scale</h3>
+      <p>Every host carries 40 addresses. Ten (<code>.10-.19</code>) have their own static one-to-one mappings &#8212; deterministic, and reachable inbound. Thirty (<code>.64-.93</code>) are translated from a per-site pool of exactly thirty, <code>.100-.129</code>, allocated on demand. The pool has no <code>overload</code>, so each client takes its own address rather than sharing one by port: a correct run consumes the pool to 100% with no misses, and any sharing or failure is visible immediately.</p>
+    </div>
+    <div class="note">
+      <h3>Why translation is scoped by a route-map</h3>
+      <p>Only traffic aimed at <code>10.30.0.0/16</code> is rewritten. Without that scoping both ends would rewrite their source on replies, and a ping would return from an address the sender never contacted. The direct LAN path therefore stays untranslated, and a test holds that line.</p>
+    </div>
+    <div class="note">
+      <h3>The hosts know nothing about IPsec</h3>
+      <p>Each cirros host holds one address and two routes. Their traffic resolves out a tunnel and the VTI encrypts it; the encryption is entirely the routers' business.</p>
+    </div>
+    <div class="note">
+      <h3>Throughput is licence-capped</h3>
+      <p>The platform reports <code>20000 kb/s</code>. Bulk transfers between the hosts sustain 16.5 Mbps in both directions &#8212; and spoke-to-spoke is the slower path, since the hub decrypts and re-encrypts every packet. Raising the bar means raising the licensed level, not tuning the fabric.</p>
+    </div>
+    <div class="note">
+      <h3>nms collects logs and traps</h3>
+      <p>All three routers send syslog and SNMPv3 traps to <code>nms</code>: the hub across its LAN, the spokes through the tunnels on routes BGP already carries. Each collector is a system service, so it is always receiving and no test run can leave a stale listener behind. These used to live on h1, which could only manage busybox <code>nc</code> &#8212; that attaches to its first sender and silently drops every other source, so each router needed a UDP port of its own for each service. rsyslog and snmptrapd each serve all three on one port.</p>
+    </div>
+    <div class="note">
+      <h3>Traps are received twice, deliberately</h3>
+      <p>snmptrapd authenticates and decrypts each trap using a USM key created per router engine ID &#8212; proof the credentials, engine IDs and privacy protocol all agree, and the only way to see the varbinds. But it cannot show that a trap was encrypted <em>in flight</em>, because by the time it writes a log line it has already decrypted. So the routers also send to a raw capture on a second port, whose datagrams are BER-decoded byte by byte to assert the scoped PDU really is an opaque OCTET STRING and not a readable SEQUENCE.</p>
+    </div>
+    <div class="note">
+      <h3>Every BGP session is authenticated, tracked and filtered</h3>
+      <p>MD5 on every neighbour; BFD on the tunnel each peer address lives on, with <code>fall-over bfd</code> so BGP acts on it; an outbound route-map per peer that both whitelists and tags &#8212; one clause per prefix class, setting a community of <code>&lt;origin ASN&gt;:&lt;class&gt;</code>, with the implicit deny as the filter; an inbound route-map per peer accepting only the nine communities this topology can produce, on an AS path that peer could legitimately send; and <code>maximum-prefix 15 80</code>, so a peer that floods takes itself out instead of being absorbed. A spoke may advertise only its own three prefixes (BGP /32, NAT domain, LAN); the hub may advertise its own plus the far spoke's, which is exactly what spoke-to-spoke needs. BFD timers are 500ms &#215; 3 rather than sub-second: these routers share a host CPU, and an over-aggressive detector produces false positives. Blocking only BFD control packets, leaving BGP's TCP untouched, drops the session in about two seconds against a thirty-second hold time.</p>
+    </div>
+    <div class="note">
+      <h3>Encryption costs 62 bytes of every packet</h3>
+      <p>ESP-AES-256 with SHA256 leaves 1438 bytes of the 1500-byte path. That boundary is where real IPsec deployments fail, and they fail quietly &#8212; small packets work, so ping and SSH look healthy while anything bulk stalls. The tests assert it from both sides: a packet of exactly 1438 crosses with DF set, 1439 does not, and both sizes succeed once fragmentation is allowed, which is what separates an MTU limit from a blackhole. Best of all, an end host two hops away learns <code>mtu=1438</code> for itself &#8212; path MTU discovery survives the tunnel, so a real client backs off instead of retransmitting into a hole.</p>
+    </div>
+    <div class="note">
+      <h3>Who may log in, and what they are told first</h3>
+      <p>An <code>access-class</code> on the VTY lines limits SSH to the management network, enforced before authentication so an attempt from anywhere else never reaches a password prompt. It carries one documented exception &#8212; the hypervisor's user-mode NAT, which is how the test harness reaches these devices at all &#8212; pinned by a test asserting exactly two permits, so widening the policy fails rather than passes quietly. <code>vrf-also</code> is load-bearing and its absence is silent: without it the ACL is never consulted for sessions arriving through a VRF, and every out-of-band login is refused while the configuration reads perfectly correct. Ahead of all that sits a pre-login banner, captured by the tests from a deliberately failed login to prove it reaches someone who has not been let in, and checked to disclose no vendor, model, version or hostname.</p>
+    </div>
+    <div class="note">
+      <h3>nms polls with real tooling</h3>
+      <p>The cirros hosts cannot speak SNMP at all, which is why the trap tests decode BER by hand. <code>nms</code> is an Ubuntu cloud image with net-snmp, so polling is the same <code>snmpget</code> and <code>snmpwalk</code> an engineer would type. Its answers are cross-checked against each router's own CLI &#8212; sysName against the configured hostname, the interface walk against <code>show ip interface brief</code> &#8212; so a plausible reply from the wrong device cannot pass. Polling the spokes advances the ESP counters at both ends, which is how the tests prove the management traffic is itself encrypted.</p>
+    </div>
+    <div class="note">
+      <h3>Management is out of band, and in a VRF</h3>
+      <p>Every router and the NMS share a flat <code>192.168.99.0/24</code>, on an interface held in the <code>MGMT</code> VRF &#8212; so the separation is enforced by the routing table rather than only by topology. The VRF knows how to reach the management network and nothing else; the global table has no route to it at all. The payoff is testable rather than theoretical: polling both spokes adds no measurable ESP traffic, because it never crosses a tunnel, and shutting a spoke's tunnel &#8212; which costs the hub its route to that spoke's LAN entirely &#8212; leaves the spoke still answering SNMP and still delivering syslog.</p>
+    </div>
+    <div class="note">
+      <h3>Time arrives as a hierarchy</h3>
+      <p>The out-of-band network has no route to the internet, which is the point of it, so the routers cannot reach <code>pool.ntp.org</code> across it. Instead the NMS synchronises upstream through its own NAT interface and serves the management network with chrony: the public pool is still where time comes from, one stratum further away. That makes the server's own health load-bearing &#8212; chrony is configured <code>local stratum 10</code>, so it keeps serving whether or not it has an upstream, and without a test for that the whole lab could agree precisely on time that came from nowhere. Worth knowing too: IOS withholds its <em>synchronised</em> flag until the loopfilter finishes measuring drift, about 17 minutes, long after the offset is within milliseconds.</p>
+    </div>
+    <div class="note">
+      <h3>Start order matters, on the router links</h3>
+      <p>The inter-router links are QEMU socket netdevs with one end listening, and the hub listens for both spokes &#8212; so the hub starts first. The LANs are different: each is a multicast segment, so it holds any number of machines and they can join in any order. That is what makes room for a second machine on the hub LAN.</p>
+    </div>
+    <div class="note">
+      <h3>Crypto needs a licence, and a reload</h3>
+      <p>At the default licence level the <code>crypto</code> CLI does not exist. Day0 sets <code>network-premier</code> with the <code>dna-premier</code> addon, which activates on reload &#8212; and a router that reboots without it silently drops its crypto config.</p>
+    </div>
+  </section>
+
+  <div class="panel">
+    <div class="panel-head">Host access</div>
+    <div class="scroller">
+      <table>
+        <thead>
+          <tr><th scope="col">SERVICE</th><th scope="col">c8000v-r1 (hub)</th><th scope="col">c8000v-r2</th><th scope="col">c8000v-r3</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">SSH</th><td>2221</td><td>2222</td><td>2223</td></tr>
+          <tr><th scope="row">NETCONF</th><td>8831</td><td>8832</td><td>8833</td></tr>
+          <tr><th scope="row">RESTCONF</th><td>8441</td><td>8442</td><td>8443</td></tr>
+          <tr><th scope="row">Serial console</th><td>telnet 5001</td><td>telnet 5002</td><td>telnet 5003</td></tr>
+          <tr><th scope="row">Host behind it</th><td>h1 &#183; ssh 2231</td><td>h2 &#183; ssh 2232</td><td>h3 &#183; ssh 2233</td></tr>
+          <tr><th scope="row">Host console</th><td>telnet 5011</td><td>telnet 5012</td><td>telnet 5013</td></tr>
+          <tr><th scope="row">NMS</th><td>nms &#183; ssh 2241 &#183; telnet 5021</td><td colspan="2">polled across the tunnels from the hub LAN</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    Brought up from cold with <code>./start-lab.sh</code> &#8212; day0 bootstrap, licence reload, IPsec, eBGP, then the hosts. Validated by <code>./run-tests.sh</code>: 204 tests across 22 suites, including sustained throughput, 10 static NAT mappings and a 30-address dynamic pool per site, MD5-authenticated and BFD-tracked eBGP with community tagging and per-peer inbound validation, NTP against the public pool, syslog and SNMPv3 traps delivered to collectors on nms, which also polls every router over SNMPv3. Every run is archived under <code>results/results_&lt;date&gt;_&lt;time&gt;/</code>.
+  </footer>
+
+</div>

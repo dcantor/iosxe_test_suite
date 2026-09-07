@@ -1,0 +1,655 @@
+Building configuration...
+
+Current configuration : 21875 bytes
+!
+! Last configuration change at 19:51:03 UTC Mon Sep 7 2026 by lab
+! NVRAM config last updated at 19:36:03 UTC Mon Sep 7 2026 by lab
+!
+version 17.15
+service timestamps debug datetime msec
+service timestamps log datetime msec show-timezone
+service sequence-numbers
+platform qfp utilization monitor load 80
+platform sslvpn use-pd
+platform console serial
+!
+hostname c8000v-r1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+vrf definition MGMT
+ description out-of-band management
+ !
+ address-family ipv4
+ exit-address-family
+!
+aaa new-model
+!
+!
+aaa group server tacacs+ LABTACGRP
+ server name LAB-TAC
+ ip vrf forwarding MGMT
+ ip tacacs source-interface GigabitEthernet5
+!
+aaa authentication login default group LABTACGRP local
+aaa authentication enable default group LABTACGRP enable
+aaa authorization exec default group LABTACGRP local if-authenticated 
+aaa accounting exec default start-stop group LABTACGRP
+aaa accounting commands 15 default start-stop group LABTACGRP
+!
+!
+aaa session-id common
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip domain name lab.local
+!
+!
+!
+login on-success log
+!
+!
+subscriber templating
+!
+! 
+! 
+! 
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+crypto pki trustpoint TP-self-signed-723045801
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-723045801
+ revocation-check none
+ rsakeypair TP-self-signed-723045801
+ hash sha512
+!
+crypto pki trustpoint SLA-TrustPoint
+ enrollment pkcs12
+ revocation-check crl
+ hash sha512
+!
+!
+crypto pki certificate chain TP-self-signed-723045801
+ certificate self-signed 01
+  3082032E 30820216 A0030201 02020101 300D0609 2A864886 F70D0101 0D050030 
+  30312E30 2C060355 04030C25 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 37323330 34353830 31301E17 0D323630 39303731 37333233 
+  375A170D 33363039 30363137 33323337 5A303031 2E302C06 03550403 0C25494F 
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3732 33303435 
+  38303130 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 82010A02 
+  82010100 A14E72FB FC207924 AF9AEC23 7B572A0A 213C3547 F832B737 A7C9F8A7 
+  6F5933B1 D9F25545 BB3D8E6E 751BA33E B91BCCF7 FCDBC30F 2B72FE9F 69AA40A6 
+  80F01F29 D724CD06 0ECA6AE4 56E0F3E5 65518476 1914C80E 31E05F0A 92E8F397 
+  5FE12D54 CD6D212A FCE80E8E BB45A7A2 CE9359CE 84E5E8F9 BE0FD5A4 4A7853F1 
+  BF8FCF8F 23989D08 F5C305AE DBDF982A 5AFCF751 2EC9B6FD 50A5738E 996A5462 
+  764313CC 32CB6F27 1C327F77 C3E23174 42290601 EFCCFD8F 77C21DAA 9F76FB3F 
+  BF067C27 AC6A9F68 B7D05E71 117CD0FD 059F952A 7E8EE49E 040BA2D5 DFE50512 
+  6BB2C195 6C120151 768ABC04 FE4628E1 C312F6D6 5B47F12B E19E3C9A A6295C71 
+  A7D8B1D7 02030100 01A35330 51301D06 03551D0E 04160414 54217FB3 0B539A30 
+  246CED6E 5FFA9E54 3D4604AA 301F0603 551D2304 18301680 1454217F B30B539A 
+  30246CED 6E5FFA9E 543D4604 AA300F06 03551D13 0101FF04 05300301 01FF300D 
+  06092A86 4886F70D 01010D05 00038201 01006C81 402F1F19 488AB409 6E3BB23E 
+  70804747 1B8A80B7 A7008E93 07865DA0 F5AE3143 A9CF350D ED3A6DFE 69D10AD8 
+  07673D43 132A7A43 D7C2EE75 4E5739EC B510C88D 9DAF70AB D406F622 378AF9D1 
+  99438E96 ED2AC2F5 3227FF93 C98F5974 4A9FCB69 0C905DB6 B4595690 5EB41F47 
+  ED164A7C 59D7325C 1F6A6016 D84BF080 F470C807 2BE76BE3 D8381AEE D8E2E7C5 
+  8B796C8C 301371E5 BD0B8512 1F7F2CB2 0EC6EB03 637D0D46 E57FFD6D 884238CF 
+  2DF66D7C 0FC75CCE 5DAA9FA0 6BE45CBC E91EA703 6A9E39F7 1A930E1A C475711E 
+  03BFC113 69FD940C 91C44CBE B35F5372 9A7F2131 EA4565D1 43F50020 1C972C3D 
+  D42B1BDA 7A4E4071 6F980A5C 5A40E90B 2D12
+  	quit
+crypto pki certificate chain SLA-TrustPoint
+ certificate ca 01
+  30820321 30820209 A0030201 02020101 300D0609 2A864886 F70D0101 0B050030 
+  32310E30 0C060355 040A1305 43697363 6F312030 1E060355 04031317 43697363 
+  6F204C69 63656E73 696E6720 526F6F74 20434130 1E170D31 33303533 30313934 
+  3834375A 170D3338 30353330 31393438 34375A30 32310E30 0C060355 040A1305 
+  43697363 6F312030 1E060355 04031317 43697363 6F204C69 63656E73 696E6720 
+  526F6F74 20434130 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 
+  82010A02 82010100 A6BCBD96 131E05F7 145EA72C 2CD686E6 17222EA1 F1EFF64D 
+  CBB4C798 212AA147 C655D8D7 9471380D 8711441E 1AAF071A 9CAE6388 8A38E520 
+  1C394D78 462EF239 C659F715 B98C0A59 5BBB5CBD 0CFEBEA3 700A8BF7 D8F256EE 
+  4AA4E80D DB6FD1C9 60B1FD18 FFC69C96 6FA68957 A2617DE7 104FDC5F EA2956AC 
+  7390A3EB 2B5436AD C847A2C5 DAB553EB 69A9A535 58E9F3E3 C0BD23CF 58BD7188 
+  68E69491 20F320E7 948E71D7 AE3BCC84 F10684C7 4BC8E00F 539BA42B 42C68BB7 
+  C7479096 B4CB2D62 EA2F505D C7B062A4 6811D95B E8250FC4 5D5D5FB8 8F27D191 
+  C55F0D76 61F9A4CD 3D992327 A8BB03BD 4E6D7069 7CBADF8B DF5F4368 95135E44 
+  DFC7C6CF 04DD7FD1 02030100 01A34230 40300E06 03551D0F 0101FF04 04030201 
+  06300F06 03551D13 0101FF04 05300301 01FF301D 0603551D 0E041604 1449DC85 
+  4B3D31E5 1B3E6A17 606AF333 3D3B4C73 E8300D06 092A8648 86F70D01 010B0500 
+  03820101 00507F24 D3932A66 86025D9F E838AE5C 6D4DF6B0 49631C78 240DA905 
+  604EDCDE FF4FED2B 77FC460E CD636FDB DD44681E 3A5673AB 9093D3B1 6C9E3D8B 
+  D98987BF E40CBD9E 1AECA0C2 2189BB5C 8FA85686 CD98B646 5575B146 8DFC66A8 
+  467A3DF4 4D565700 6ADF0F0D CF835015 3C04FF7C 21E878AC 11BA9CD2 55A9232C 
+  7CA7B7E6 C1AF74F6 152E99B7 B1FCF9BB E973DE7F 5BDDEB86 C71E3B49 1765308B 
+  5FB0DA06 B92AFE7F 494E8A9E 07B85737 F3A58BE1 1A48A229 C37C1E69 39F08678 
+  80DDCD16 D6BACECA EEBC7CF9 8428787B 35202CDC 60E4616A B623CDBD 230E3AFB 
+  418616A9 4093E049 4D10AB75 27E86F73 932E35B5 8862FDAE 0275156F 719BB2F0 
+  D697DF7F 28
+  	quit
+!
+!
+!
+!
+!
+!
+!
+!
+!
+license udi pid C8000V sn 9O0H4OJAI82
+license boot level network-premier addon dna-premier
+memory free low-watermark processor 31774
+diagnostic bootup level minimal
+!
+!
+spanning-tree extend system-id
+!
+!
+enable secret 9 $9$JPvGfIxQsiSL/E$GfU5hviJjslmJAZi3yfoblc0R3hkzW.Ffa//QpZQCZk
+!
+username lab privilege 15 secret 9 $9$tEprPHTE8K0WJk$y0efLjrei3xMrObTgWg3To2AbHw/Se1kdr3rG.M1OkE
+!
+redundancy
+!
+!
+!
+crypto ikev2 proposal LAB-PROP 
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+!
+crypto ikev2 policy LAB-POL 
+ proposal LAB-PROP
+!
+crypto ikev2 keyring LAB-KR
+ peer R2
+  address 10.10.10.2
+  pre-shared-key LabPreSharedKey123
+ !
+ peer R3
+  address 10.10.20.2
+  pre-shared-key LabPreSharedKey123
+ !
+!
+!
+crypto ikev2 profile LAB-PROF
+ match identity remote address 10.10.10.2 255.255.255.255 
+ match identity remote address 10.10.20.2 255.255.255.255 
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local LAB-KR
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+crypto ipsec transform-set LAB-TS esp-aes 256 esp-sha256-hmac 
+ mode tunnel
+!
+crypto ipsec profile LAB-IPSEC
+ set transform-set LAB-TS 
+ set ikev2-profile LAB-PROF
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+!
+interface Loopback0
+ description Protected endpoint
+ ip address 172.16.1.1 255.255.255.255
+!
+interface Loopback1
+ description BGP-advertised prefix
+ ip address 10.20.1.1 255.255.255.255
+!
+interface Tunnel0
+ description to c8000v-r2
+ ip address 192.168.100.1 255.255.255.252
+ ip nat outside
+ bfd interval 500 min_rx 500 multiplier 3
+ tunnel source GigabitEthernet2
+ tunnel mode ipsec ipv4
+ tunnel destination 10.10.10.2
+ tunnel protection ipsec profile LAB-IPSEC
+!
+interface Tunnel1
+ description to c8000v-r3
+ ip address 192.168.101.1 255.255.255.252
+ ip nat outside
+ bfd interval 500 min_rx 500 multiplier 3
+ tunnel source GigabitEthernet4
+ tunnel mode ipsec ipv4
+ tunnel destination 10.10.20.2
+ tunnel protection ipsec profile LAB-IPSEC
+!
+interface GigabitEthernet1
+ description MGMT - QEMU user-mode net (DHCP)
+ ip address dhcp
+ negotiation auto
+!
+interface GigabitEthernet2
+ description P2P link to c8000v-r2
+ ip address 10.10.10.1 255.255.255.252
+ negotiation auto
+!
+interface GigabitEthernet3
+ description LAN toward h1
+ ip address 192.168.10.1 255.255.255.0
+ ip nat inside
+ negotiation auto
+!
+interface GigabitEthernet4
+ description P2P link to c8000v-r3
+ ip address 10.10.20.1 255.255.255.252
+ negotiation auto
+!
+interface GigabitEthernet5
+ description OOB management - NTP, syslog, SNMP
+ vrf forwarding MGMT
+ ip address 192.168.99.1 255.255.255.0
+ negotiation auto
+!
+router bgp 65001
+ bgp router-id 172.16.1.1
+ bgp log-neighbor-changes
+ neighbor 192.168.100.2 remote-as 65002
+ neighbor 192.168.100.2 password LabBgpSecret
+ neighbor 192.168.100.2 timers 10 30
+ neighbor 192.168.100.2 fall-over bfd
+ neighbor 192.168.101.2 remote-as 65003
+ neighbor 192.168.101.2 password LabBgpSecret
+ neighbor 192.168.101.2 timers 10 30
+ neighbor 192.168.101.2 fall-over bfd
+ !
+ address-family ipv4
+  network 10.20.1.1 mask 255.255.255.255
+  network 10.30.1.0 mask 255.255.255.0
+  network 192.168.10.0
+  neighbor 192.168.100.2 activate
+  neighbor 192.168.100.2 send-community both
+  neighbor 192.168.100.2 route-map RM-IN-R2 in
+  neighbor 192.168.100.2 route-map RM-OUT-R2 out
+  neighbor 192.168.100.2 maximum-prefix 15 80
+  neighbor 192.168.101.2 activate
+  neighbor 192.168.101.2 send-community both
+  neighbor 192.168.101.2 route-map RM-IN-R3 in
+  neighbor 192.168.101.2 route-map RM-OUT-R3 out
+  neighbor 192.168.101.2 maximum-prefix 15 80
+ exit-address-family
+!
+ip forward-protocol nd
+!
+ip bgp-community new-format
+ip community-list standard CL-VALID permit 65001:1
+ip community-list standard CL-VALID permit 65001:2
+ip community-list standard CL-VALID permit 65001:3
+ip community-list standard CL-VALID permit 65002:1
+ip community-list standard CL-VALID permit 65002:2
+ip community-list standard CL-VALID permit 65002:3
+ip community-list standard CL-VALID permit 65003:1
+ip community-list standard CL-VALID permit 65003:2
+ip community-list standard CL-VALID permit 65003:3
+ip as-path access-list 10 permit ^65002$
+ip as-path access-list 20 permit ^65003$
+no ip http server
+ip http secure-server
+ip route 10.30.1.0 255.255.255.0 Null0
+ip route 172.16.2.1 255.255.255.255 Tunnel0
+ip route 172.16.3.1 255.255.255.255 Tunnel1
+ip nat pool SITE-POOL 10.30.1.100 10.30.1.129 prefix-length 24
+ip nat inside source static 192.168.10.10 10.30.1.10 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.11 10.30.1.11 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.12 10.30.1.12 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.13 10.30.1.13 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.14 10.30.1.14 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.15 10.30.1.15 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.16 10.30.1.16 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.17 10.30.1.17 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.18 10.30.1.18 route-map NAT-TO-DOMAIN
+ip nat inside source static 192.168.10.19 10.30.1.19 route-map NAT-TO-DOMAIN
+ip nat inside source list NAT-POOL-SRC pool SITE-POOL
+ip ssh bulk-mode 131072
+ip ssh server algorithm authentication password
+!
+ip prefix-list PL-FAR-R2 seq 40 permit 10.20.2.1/32
+ip prefix-list PL-FAR-R2 seq 45 permit 10.30.2.0/24
+ip prefix-list PL-FAR-R2 seq 50 permit 192.168.20.0/24
+!
+ip prefix-list PL-FAR-R3 seq 40 permit 10.20.3.1/32
+ip prefix-list PL-FAR-R3 seq 45 permit 10.30.3.0/24
+ip prefix-list PL-FAR-R3 seq 50 permit 192.168.30.0/24
+!
+ip prefix-list PL-OWN-LAN seq 5 permit 192.168.10.0/24
+!
+ip prefix-list PL-OWN-LO seq 5 permit 10.20.1.1/32
+!
+ip prefix-list PL-OWN-NAT seq 5 permit 10.30.1.0/24
+!
+ip access-list standard VTY-MGMT
+ 10 remark out-of-band management network
+ 10 permit 192.168.99.0 0.0.0.255
+ 20 remark hypervisor user-mode NAT: how the harness reaches these devices
+ 20 permit 10.0.2.0 0.0.0.255
+ 30 deny any log
+!
+ip access-list extended NAT-DOMAIN
+ 10 permit ip host 192.168.10.10 10.30.0.0 0.0.255.255
+ 20 permit ip host 192.168.10.11 10.30.0.0 0.0.255.255
+ 30 permit ip host 192.168.10.12 10.30.0.0 0.0.255.255
+ 40 permit ip host 192.168.10.13 10.30.0.0 0.0.255.255
+ 50 permit ip host 192.168.10.14 10.30.0.0 0.0.255.255
+ 60 permit ip host 192.168.10.15 10.30.0.0 0.0.255.255
+ 70 permit ip host 192.168.10.16 10.30.0.0 0.0.255.255
+ 80 permit ip host 192.168.10.17 10.30.0.0 0.0.255.255
+ 90 permit ip host 192.168.10.18 10.30.0.0 0.0.255.255
+ 100 permit ip host 192.168.10.19 10.30.0.0 0.0.255.255
+ip access-list extended NAT-POOL-SRC
+ 10 permit ip 192.168.10.64 0.0.0.31 10.30.0.0 0.0.255.255
+logging source-interface GigabitEthernet5 vrf MGMT
+logging host 192.168.99.10 vrf MGMT
+route-map RM-OUT-R2 permit 10 
+ description R1's own LO, tagged 65001:1
+ match ip address prefix-list PL-OWN-LO
+ set community 65001:1
+!
+route-map RM-OUT-R2 permit 20 
+ description R1's own NAT, tagged 65001:2
+ match ip address prefix-list PL-OWN-NAT
+ set community 65001:2
+!
+route-map RM-OUT-R2 permit 30 
+ description R1's own LAN, tagged 65001:3
+ match ip address prefix-list PL-OWN-LAN
+ set community 65001:3
+!
+route-map RM-OUT-R2 permit 55 
+ description re-advertise R3, preserving its communities
+ match ip address prefix-list PL-FAR-R3
+!
+route-map RM-OUT-R3 permit 10 
+ description R1's own LO, tagged 65001:1
+ match ip address prefix-list PL-OWN-LO
+ set community 65001:1
+!
+route-map RM-OUT-R3 permit 20 
+ description R1's own NAT, tagged 65001:2
+ match ip address prefix-list PL-OWN-NAT
+ set community 65001:2
+!
+route-map RM-OUT-R3 permit 30 
+ description R1's own LAN, tagged 65001:3
+ match ip address prefix-list PL-OWN-LAN
+ set community 65001:3
+!
+route-map RM-OUT-R3 permit 55 
+ description re-advertise R2, preserving its communities
+ match ip address prefix-list PL-FAR-R2
+!
+route-map NAT-TO-DOMAIN permit 10 
+ match ip address NAT-DOMAIN
+!
+route-map RM-IN-R2 permit 10 
+ description accept only known communities on an AS path R2 can produce
+ match as-path 10
+ match community CL-VALID
+!
+route-map RM-IN-R3 permit 10 
+ description accept only known communities on an AS path R3 can produce
+ match as-path 20
+ match community CL-VALID
+!
+snmp-server group LABGRP v3 priv read LABVIEW notify LABVIEW 
+snmp-server view LABVIEW iso included
+snmp-server trap-source GigabitEthernet5
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps vrrp
+snmp-server enable traps flowmon
+snmp-server enable traps pfr
+snmp-server enable traps ds1
+snmp-server enable traps sdwan security policy system omp bfd
+snmp-server enable traps entity-perf throughput-notif
+snmp-server enable traps call-home message-send-fail server-fail
+snmp-server enable traps tty
+snmp-server enable traps ospf state-change
+snmp-server enable traps ospf errors
+snmp-server enable traps ospf retransmit
+snmp-server enable traps ospf lsa
+snmp-server enable traps ospf cisco-specific state-change nssa-trans-change
+snmp-server enable traps ospf cisco-specific state-change shamlink interface
+snmp-server enable traps ospf cisco-specific state-change shamlink neighbor
+snmp-server enable traps ospf cisco-specific errors
+snmp-server enable traps ospf cisco-specific retransmit
+snmp-server enable traps ospf cisco-specific lsa
+snmp-server enable traps eigrp
+snmp-server enable traps casa
+snmp-server enable traps xgcp
+snmp-server enable traps cef resource-failure peer-state-change peer-fib-state-change inconsistency
+snmp-server enable traps smart-license
+snmp-server enable traps diameter
+snmp-server enable traps entity-qfp mem-res-thresh throughput-notif
+snmp-server enable traps entity-state
+snmp-server enable traps ethernet cfm cc mep-up mep-down cross-connect loop config
+snmp-server enable traps ethernet cfm crosscheck mep-missing mep-unknown service-up
+snmp-server enable traps ether-oam
+snmp-server enable traps ethernet evc status create delete
+snmp-server enable traps aaa_server
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps config-ctid
+snmp-server enable traps memory bufferpeak
+snmp-server enable traps fru-ctrl
+snmp-server enable traps entity-sensor
+snmp-server enable traps resource-policy
+snmp-server enable traps flash insertion removal lowspace
+snmp-server enable traps hsrp
+snmp-server enable traps entity
+snmp-server enable traps ip local pool
+snmp-server enable traps cpu threshold
+snmp-server enable traps auth-framework sec-violation
+snmp-server enable traps atm subif
+snmp-server enable traps frame-relay
+snmp-server enable traps frame-relay subif
+snmp-server enable traps bgp state-changes all backward-trans limited updown-limited
+snmp-server enable traps bgp threshold prefix
+snmp-server enable traps bgp cbgp2 state-changes all backward-trans limited updown-limited
+snmp-server enable traps bgp cbgp2 threshold prefix
+snmp-server enable traps pim neighbor-change rp-mapping-change invalid-pim-message
+snmp-server enable traps ipmulticast
+snmp-server enable traps msdp
+snmp-server enable traps mvpn
+snmp-server enable traps rsvp
+snmp-server enable traps isis
+snmp-server enable traps dhcp
+snmp-server enable traps nhrp nhs
+snmp-server enable traps nhrp nhc
+snmp-server enable traps nhrp nhp
+snmp-server enable traps nhrp quota-exceeded
+snmp-server enable traps ipsla
+snmp-server enable traps bfd
+snmp-server enable traps cnpd
+snmp-server enable traps event-manager
+snmp-server enable traps dlsw
+snmp-server enable traps ospfv3 state-change
+snmp-server enable traps ospfv3 errors
+snmp-server enable traps pppoe
+snmp-server enable traps l2tun session
+snmp-server enable traps l2tun pseudowire status
+snmp-server enable traps l2tun tunnel
+snmp-server enable traps pki
+snmp-server enable traps pimstdmib neighbor-loss invalid-register invalid-join-prune rp-mapping-change interface-election
+snmp-server enable traps adslline
+snmp-server enable traps entity-diag boot-up-fail hm-test-recover hm-thresh-reached scheduled-test-fail
+snmp-server enable traps vdsl2line
+snmp-server enable traps vtp
+snmp-server enable traps vlancreate
+snmp-server enable traps vlandelete
+snmp-server enable traps port-security
+snmp-server enable traps isdn call-information
+snmp-server enable traps isdn layer2
+snmp-server enable traps isdn chan-not-avail
+snmp-server enable traps isdn ietf
+snmp-server enable traps c3g
+snmp-server enable traps LTE
+snmp-server enable traps lisp
+snmp-server enable traps firewall serverstatus
+snmp-server enable traps ike policy add
+snmp-server enable traps ike policy delete
+snmp-server enable traps ike tunnel start
+snmp-server enable traps ike tunnel stop
+snmp-server enable traps ipsec cryptomap add
+snmp-server enable traps ipsec cryptomap delete
+snmp-server enable traps ipsec cryptomap attach
+snmp-server enable traps ipsec cryptomap detach
+snmp-server enable traps ipsec tunnel start
+snmp-server enable traps ipsec tunnel stop
+snmp-server enable traps ipsec too-many-sas
+snmp-server enable traps gdoi gm-start-registration
+snmp-server enable traps gdoi gm-registration-complete
+snmp-server enable traps gdoi gm-re-register
+snmp-server enable traps gdoi gm-rekey-rcvd
+snmp-server enable traps gdoi gm-rekey-fail
+snmp-server enable traps gdoi ks-rekey-pushed
+snmp-server enable traps gdoi gm-incomplete-cfg
+snmp-server enable traps gdoi ks-no-rsa-keys
+snmp-server enable traps gdoi ks-new-registration
+snmp-server enable traps gdoi ks-reg-complete
+snmp-server enable traps gdoi ks-role-change
+snmp-server enable traps gdoi ks-gm-deleted
+snmp-server enable traps gdoi ks-peer-reachable
+snmp-server enable traps gdoi ks-peer-unreachable
+snmp-server enable traps mpls rfc ldp
+snmp-server enable traps mpls ldp
+snmp-server enable traps mpls rfc traffic-eng
+snmp-server enable traps mpls traffic-eng
+snmp-server enable traps mpls fast-reroute protected
+snmp-server enable traps otn
+snmp-server enable traps pw vc
+snmp-server enable traps frame-relay multilink bundle-mismatch
+snmp-server enable traps dial
+snmp-server enable traps dsp card-status
+snmp-server enable traps dsp oper-state
+snmp-server enable traps dsp video-usage
+snmp-server enable traps dsp video-out-of-resource
+snmp-server enable traps syslog
+snmp-server enable traps sbc adj-status
+snmp-server enable traps sbc blacklist
+snmp-server enable traps sbc congestion-alarm
+snmp-server enable traps sbc h248-ctrlr-status
+snmp-server enable traps sbc media-source
+snmp-server enable traps sbc radius-conn-status
+snmp-server enable traps sbc sla-violation
+snmp-server enable traps sbc sla-violation-rev1
+snmp-server enable traps sbc svc-state
+snmp-server enable traps sbc qos-statistics
+snmp-server enable traps bulkstat collection transfer
+snmp-server enable traps ethernet cfm alarm
+snmp-server enable traps alarms informational
+snmp-server enable traps transceiver all
+snmp-server enable traps rf
+snmp-server enable traps vrfmib vrf-up vrf-down vnet-trunk-up vnet-trunk-down
+snmp-server enable traps ccme
+snmp-server enable traps srst
+snmp-server enable traps mpls vpn
+snmp-server enable traps mpls rfc vpn
+snmp-server enable traps voice
+snmp-server host 192.168.99.10 vrf MGMT version 3 priv labmon udp-port 1162 
+snmp-server host 192.168.99.10 vrf MGMT version 3 priv labmon 
+tacacs server LAB-TAC
+ address ipv4 192.168.99.10
+ key LabTacacsKey123
+!
+!
+!
+!
+!
+control-plane
+!
+!
+mgcp behavior rsip-range tgcp-only
+mgcp behavior comedia-role none
+mgcp behavior comedia-check-media-src disable
+mgcp behavior comedia-sdp-force disable
+!
+mgcp profile default
+!
+!
+!
+!
+!
+banner login ^C
+******************************************************************************
+                          AUTHORISED ACCESS ONLY
+
+  Access to this device is restricted to authorised personnel. If you are not
+  an authorised user, disconnect now.
+
+  All activity is monitored, logged and audited. Continued use of this system
+  constitutes consent to that monitoring.
+
+  Unauthorised access or use may result in disciplinary action and civil or
+  criminal penalties.
+******************************************************************************
+^C
+!
+line con 0
+ exec-timeout 0 0
+ activation-character 13
+ logging synchronous
+ stopbits 1
+line aux 0
+ activation-character 13
+line vty 0 4
+ access-class VTY-MGMT in vrf-also
+ exec-timeout 0 0
+ activation-character 13
+ transport input ssh
+line vty 5 15
+ access-class VTY-MGMT in vrf-also
+ exec-timeout 0 0
+ activation-character 13
+ transport input ssh
+!
+ntp source GigabitEthernet5
+ntp server vrf MGMT 192.168.99.10
+!
+!
+!
+!
+!
+!
+netconf-yang
+restconf
+end

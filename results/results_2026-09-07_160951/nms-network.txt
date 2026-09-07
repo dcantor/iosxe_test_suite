@@ -1,0 +1,13 @@
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+ens3             UP             10.0.2.15/24 metric 100 fec0::5054:ff:febb:101/64 fe80::5054:ff:febb:101/64 
+ens4             UP             192.168.10.20/24 fe80::5054:ff:febb:102/64 
+ens5             UP             192.168.99.10/24 fe80::5054:ff:febb:103/64 
+default via 10.0.2.2 dev ens3 proto dhcp src 10.0.2.15 metric 100 
+10.0.2.0/24 dev ens3 proto kernel scope link src 10.0.2.15 metric 100 
+10.0.2.2 dev ens3 proto dhcp scope link src 10.0.2.15 metric 100 
+10.0.2.3 dev ens3 proto dhcp scope link src 10.0.2.15 metric 100 
+10.30.0.0/16 via 192.168.10.1 dev ens4 
+192.168.10.0/24 dev ens4 proto kernel scope link src 192.168.10.20 
+192.168.20.0/24 via 192.168.10.1 dev ens4 
+192.168.30.0/24 via 192.168.10.1 dev ens4 
+192.168.99.0/24 dev ens5 proto kernel scope link src 192.168.99.10

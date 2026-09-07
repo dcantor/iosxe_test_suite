@@ -1,0 +1,24 @@
+# Base images: the Cisco qcow2 is licensed and cannot be redistributed, and the
+# Ubuntu cloud image is 252 MB -- over GitHub's 100 MB per-file limit. All three
+# are fetched by the scripts; see README.md.
+images/
+
+# The packaged appliance (~5 GB) built by package-lab.sh.
+dist/
+
+# Per-VM overlay disks and generated ISOs: rebuilt from images/ by start-lab.sh,
+# and several are hundreds of MB.
+run/
+
+# Rebuilt by setup.sh, and full of absolute paths that would not survive a clone.
+.venv/
+
+# Every archived run except one kept as a reference result. That is the last
+# full clean run (204/204), not the newest directory: the newest is a 0/9
+# single-suite run fired at a lab that was stopped for the appliance build, and
+# shipping it as "the result" would misrepresent the state of the suite.
+results/*
+!results/results_2026-09-07_160951/
+
+__pycache__/
+*.pyc
