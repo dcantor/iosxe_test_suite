@@ -87,18 +87,124 @@ def walk(node, alias, out):
             walk(child, alias, out)
 
 
+# How each assertion keyword reads as an acceptance criterion. The arguments in
+# output.xml are the *source* ones -- "${out}" stays symbolic while the expected
+# literal survives -- so the criterion states what was required, not what a
+# variable happened to hold.
+CRITERIA = {
+    "Should Contain":            "output contains {1}",
+    "Should Not Contain":        "output does not contain {1}",
+    "Should Be Equal":           "{0} equals {1}",
+    "Should Be Equal As Integers": "{0} equals {1}",
+    "Should Be Equal As Strings": "{0} equals {1}",
+    "Should Not Be Equal":       "{0} differs from {1}",
+    "Should Not Be Equal As Integers": "{0} differs from {1}",
+    "Should Match Regexp":       "output matches {1}",
+    "Should Not Match Regexp":   "output does not match {1}",
+    "Should Match":              "output matches {1}",
+    "Should Be True":            "{0} holds",
+    "Should Not Be True":        "{0} does not hold",
+    "Should Be Empty":           "{0} is empty",
+    "Should Not Be Empty":       "{0} is not empty",
+    "Should Start With":         "{0} starts with {1}",
+    "Should End With":           "{0} ends with {1}",
+    "Length Should Be":          "{0} has exactly {1} entries",
+    "Lists Should Be Equal":     "{0} matches {1} exactly",
+    "List Should Contain Value": "{0} contains {1}",
+    "Dictionary Should Contain Key": "{0} contains the key {1}",
+}
+ASSERTION_HINT = ("Should", "Length Should", "Lists Should", "List Should",
+                  "Dictionary Should")
+
+
+def _short(v, limit=90):
+    """Collapse whitespace and undo Robot's escaping for display.
+
+    A regexp written as "\\d+" in a .robot file means a literal "\\d+", and
+    output.xml stores the source form -- so printing it raw shows the reader
+    twice the backslashes the pattern actually has.
+    """
+    v = " ".join((v or "").split()).replace("\\\\", "\\")
+    return v if len(v) <= limit else v[:limit - 1] + "\u2026"
+
+
+def criteria_of(test):
+    """The acceptance criteria a test actually applied, in order.
+
+    Read from the assertion keywords rather than written by hand, so the list
+    cannot drift from what the run enforced. Repeats are collapsed: a criterion
+    inside a FOR loop over three routers is one criterion checked three times,
+    not three different ones.
+    """
+    seen, out = {}, []
+    for kw in test.iter("kw"):
+        name = kw.get("name") or ""
+        if not name.startswith(ASSERTION_HINT):
+            continue
+        args = [a.text or "" for a in kw.findall("arg")]
+        template = CRITERIA.get(name)
+        if template:
+            try:
+                text = template.format(*[f"<b>{esc(_short(a))}</b>" for a in args[:2]])
+            except IndexError:
+                text = f"{name} {esc(_short(' '.join(args[:2])))}"
+        else:
+            text = f"{esc(name)} {esc(_short(' '.join(args[:2])))}"
+        # a trailing argument that reads as prose is the author's own statement
+        # of why the check matters; it says more than the mechanical form
+        why = ""
+        for a in args[2:]:
+            a = (a or "").strip()
+            if a and " " in a and not a.startswith("$"):
+                why = _short(a, 150)
+                break
+        key = (text, why)
+        if key in seen:
+            seen[key] += 1
+        else:
+            seen[key] = 1
+            out.append(key)
+    return [(t, w, seen[(t, w)]) for t, w in out]
+
+
+def fixture_of(node, kind):
+    """The SETUP or TEARDOWN keyword attached to a suite or a test, if any."""
+    for kw in node.findall("kw"):
+        if (kw.get("type") or "").upper() == kind:
+            name = kw.get("name") or ""
+            args = [a.text or "" for a in kw.findall("arg")]
+            # "Run Keywords" carries the real work in its arguments
+            if name == "Run Keywords":
+                parts = [a for a in args if a and a != "AND"]
+                return ", ".join(parts)
+            return name + (f" ({', '.join(args)})" if args else "")
+    return ""
+
+
 def collect(xml_path):
     root = ET.parse(xml_path).getroot()
     top = root.find("suite")
     suites = []
-    for s in top.findall("suite"):
+    for suite_index, s in enumerate(top.findall("suite"), start=1):
+        # the suite's own number where it has one ("04 Ipsec" -> 4), so the
+        # numbering in the report matches the file names on disk
+        lead = s.get("name", "").split()[0]
+        section = int(lead) if lead.isdigit() else suite_index
+        suite_setup = fixture_of(s, "SETUP")
+        suite_teardown = fixture_of(s, "TEARDOWN")
         tests = []
-        for t in s.findall("test"):
+        for test_index, t in enumerate(s.findall("test"), start=1):
             st = t.find("status")
             doc = t.find("doc")
             cmds = []
             walk(t, None, cmds)
             tests.append({
+                "number": f"{section}.{test_index:02d}",
+                "setup": fixture_of(t, "SETUP") or suite_setup,
+                "setup_scope": "test" if fixture_of(t, "SETUP") else "suite",
+                "teardown": fixture_of(t, "TEARDOWN") or suite_teardown,
+                "teardown_scope": "test" if fixture_of(t, "TEARDOWN") else "suite",
+                "criteria": criteria_of(t),
                 "name": t.get("name"),
                 "status": st.get("status"),
                 "elapsed": float(st.get("elapsed") or 0),
@@ -106,7 +212,7 @@ def collect(xml_path):
                 "message": (st.text or "").strip(),
                 "commands": cmds,
             })
-        suites.append({"name": s.get("name"), "tests": tests})
+        suites.append({"name": s.get("name"), "section": section, "tests": tests})
     st = top.find("status")
     meta = {"start": st.get("start"), "elapsed": float(st.get("elapsed") or 0)}
     return suites, meta
@@ -128,6 +234,10 @@ def styles():
     add("Meta", fontName="Helvetica", fontSize=8.5, leading=11.5, textColor=MUTED)
     add("CmdLine", fontName="Courier-Bold", fontSize=7.4, leading=9.6, textColor=INK)
     add("Fail", fontName="Helvetica-Bold", fontSize=9, leading=12, textColor=FAILRED)
+    ss.add(ParagraphStyle("Section", parent=ss["Body"], fontSize=8.5, leading=11.5,
+                          spaceBefore=5, spaceAfter=1, textColor=INK))
+    ss.add(ParagraphStyle("Criterion", parent=ss["Body"], fontSize=8.5, leading=11.5,
+                          leftIndent=12, spaceBefore=0, spaceAfter=1, textColor=INK))
     return ss
 
 
@@ -248,6 +358,7 @@ def build(suites, meta, out_path):
             mark = "PASS" if t_["status"] == "PASS" else "FAIL"
             colour = "#0b6e63" if mark == "PASS" else "#a3231c"
             head.append(Paragraph(
+                f'<font color="#5d6b7a"><b>{t_["number"]}</b></font> &nbsp; '
                 f'<font color="{colour}"><b>{mark}</b></font> &nbsp; {t_["name"]} '
                 f'<font color="#5d6b7a" size="8">({t_["elapsed"]:.1f}s, {len(t_["commands"])} commands)</font>',
                 ss["H2x"]))
@@ -257,10 +368,41 @@ def build(suites, meta, out_path):
                 head.append(Paragraph("FAILURE: " + t_["message"].splitlines()[0][:300], ss["Fail"]))
             story.append(KeepTogether(head))
 
+            # ---- setup ------------------------------------------------------
+            if t_["setup"]:
+                scope = "suite" if t_["setup_scope"] == "suite" else "this test"
+                story.append(Paragraph(
+                    f'<b>Setup</b> &nbsp;<font color="#5d6b7a" size="8">({scope})</font>&nbsp; '
+                    f'{esc(t_["setup"])}', ss["Section"]))
+            else:
+                story.append(Paragraph(
+                    "<b>Setup</b> &nbsp; none — the test runs against the lab as left "
+                    "by the preceding tests", ss["Section"]))
+
+            # ---- acceptance criteria ---------------------------------------
+            if t_["criteria"]:
+                story.append(Paragraph("<b>Acceptance criteria</b>", ss["Section"]))
+                for text, why, n in t_["criteria"]:
+                    times = f' <font color="#5d6b7a" size="8">(checked {n}&#215;)</font>' if n > 1 else ""
+                    line = f"&#8226; {text}{times}"
+                    if why:
+                        line += f'<br/><font color="#5d6b7a" size="8">{esc(why)}</font>'
+                    story.append(Paragraph(line, ss["Criterion"]))
+            else:
+                story.append(Paragraph(
+                    "<b>Acceptance criteria</b> &nbsp; none asserted directly — this test "
+                    "captures state for the record, and is checked by the tests that read it",
+                    ss["Section"]))
+
+            # ---- how it was checked ----------------------------------------
             if not t_["commands"]:
-                story.append(Paragraph("No device commands (assertion used earlier output).", ss["Meta"]))
-                story.append(Spacer(1, 6))
+                story.append(Paragraph(
+                    "<b>How it was checked</b> &nbsp; no device commands of its own; the "
+                    "assertion read output captured earlier in the suite", ss["Section"]))
+                _teardown(story, ss, t_)
+                story.append(Spacer(1, 9))
                 continue
+            story.append(Paragraph("<b>How it was checked</b>", ss["Section"]))
 
             for dev, cmd, out in t_["commands"]:
                 col = device_colour(dev)
@@ -274,6 +416,7 @@ def build(suites, meta, out_path):
                 if len(lines) > MAX_OUTPUT_LINES:
                     body += f"\n... {len(lines) - MAX_OUTPUT_LINES} more lines"
                 story.append(cli_block(body or "(no output)", MUTED))
+            _teardown(story, ss, t_)
             story.append(Spacer(1, 9))
         story.append(PageBreak())
 
@@ -317,6 +460,21 @@ def build(suites, meta, out_path):
 
     doc.build(story)
     return out_path, total, passed, ncmd
+
+
+def _teardown(story, ss, t_):
+    """Teardown is only worth a line when there is one -- most tests leave the
+    lab exactly as they found it and say so, so an absent teardown is stated
+    rather than left ambiguous."""
+    if t_["teardown"]:
+        scope = "suite" if t_["teardown_scope"] == "suite" else "this test"
+        story.append(Paragraph(
+            f'<b>Teardown</b> &nbsp;<font color="#5d6b7a" size="8">({scope})</font>&nbsp; '
+            f'{esc(t_["teardown"])}', ss["Section"]))
+    else:
+        story.append(Paragraph(
+            "<b>Teardown</b> &nbsp; none — the test changed nothing it needed to undo",
+            ss["Section"]))
 
 
 def esc(s):
