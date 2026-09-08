@@ -78,7 +78,7 @@ Hosts Pass Sub-MTU Traffic With DF Set
     [Documentation]    End to end across two encrypt/decrypt hops, from machines
     ...                that know nothing about the tunnel.
     ${out}=    Run On Host    H2    ping -c 5 -M do -s ${HOST_PAYLOAD} ${H3_IP}
-    Should Contain    ${out}    0% packet loss
+    Should Contain    ${out}    , 0% packet loss
     ...    a host could not pass ${HOST_PAYLOAD} bytes with DF set
 
 An End Host Learns The Tunnel Path MTU
@@ -96,7 +96,7 @@ Hosts Pass Oversize Traffic Without DF Set
     [Documentation]    The counterpart: the same payload that was refused with DF
     ...                set gets through when it may be fragmented.
     ${out}=    Run On Host    H2    ping -c 5 -s ${HOST_OVERSIZE} ${H3_IP}
-    Should Contain    ${out}    0% packet loss
+    Should Contain    ${out}    , 0% packet loss
     ...    oversize host traffic failed even with fragmentation allowed
 
 *** Keywords ***

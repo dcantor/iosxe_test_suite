@@ -265,7 +265,7 @@ Host Ping Should Fully Succeed
     [Documentation]    Asserts a lossless ping from a Linux host.
     [Arguments]    ${alias}    ${target}    ${count}=10
     ${out}=    Run On Host    ${alias}    ping -c ${count} ${target}
-    Should Contain    ${out}    0% packet loss
+    Should Contain    ${out}    , 0% packet loss
     ...    ping from ${alias} to ${target} lost packets: ${out}
     RETURN    ${out}
 
@@ -295,7 +295,7 @@ Ping From Source
 Ping From Source Should Fully Succeed
     [Arguments]    ${alias}    ${source}    ${target}    ${count}=5
     ${out}=    Ping From Source    ${alias}    ${source}    ${target}    ${count}
-    Should Contain    ${out}    0% packet loss
+    Should Contain    ${out}    , 0% packet loss
     ...    ping from ${source} on ${alias} to ${target} lost packets
     RETURN    ${out}
 
