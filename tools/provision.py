@@ -262,7 +262,17 @@ def advertised_to(env, router, peer):
     return allowed
 
 
-def bgp_config(env, router):
+def _peer_list(env, router):
+    """The (name, address) peers this router faces, as the policy builders see them."""
+    hub = env["HUB"]
+    if env[f"{router}_ROLE"] == "hub":
+        return [(sp, env[f"{sp}_TUNNEL_LOCAL"] if f"{sp}_TUNNEL_LOCAL" in env
+                 else env[f"{sp}_DMVPN_IP"]) for sp in spokes(env)]
+    return [(hub, env[f"{router}_TUNNEL_HUB"] if f"{router}_TUNNEL_HUB" in env
+             else env[f"{hub}_DMVPN_IP"])]
+
+
+def bgp_config(env, router, skip_teardown=False):
     """eBGP over the tunnels. Spokes peer only with the hub; the hub re-advertises
     between them, which is what gives spoke-to-spoke reachability."""
     role = env[f"{router}_ROLE"]
@@ -275,7 +285,7 @@ def bgp_config(env, router):
     tunnels = ([f"Tunnel{env[f'{sp}_HUB_TUNNEL_ID']}" for sp in spokes(env)]
                if role == "hub" else ["Tunnel0"])
 
-    lines = bgp_policy_teardown(env, router, peers)
+    lines = [] if skip_teardown else bgp_policy_teardown(env, router, peers)
     lines += bgp_policy_config(env, router, peers)
     lines += [
         "interface Loopback1",
@@ -603,7 +613,8 @@ def do_snmp(env, router):
             print(f"[{router}] removing {len(existing)} existing SNMP host(s)")
             d.config([f"no {line}" for line in existing], ignore_errors=True)
         print(f"[{router}] applying SNMPv3 config")
-        d.config(snmp_config(env, router), ignore_errors=True)
+        # strict: a refused snmp-server line is a fault, not noise
+        d.config(snmp_config(env, router))
         d.save()
         print(f"[{router}] SNMPv3 config applied")
     finally:
@@ -686,7 +697,23 @@ def do_ipsec(env, router):
 
 
 def do_bgp(env, router):
-    _apply(env, router, "BGP", bgp_config(env, router))
+    """Teardown and configuration are applied separately, and for different
+    reasons: removing an object that is not there is a no-op worth tolerating,
+    while a rejected configuration line is a fault worth stopping for. Applying
+    both strictly breaks on a factory-fresh device, where the teardown has
+    nothing to remove; applying both leniently is how a genuinely refused
+    command goes unnoticed."""
+    d = device(env, router).connect()
+    try:
+        peers = _peer_list(env, router)
+        print(f"[{router}] clearing any existing routing policy")
+        d.config(bgp_policy_teardown(env, router, peers), ignore_errors=True)
+        print(f"[{router}] applying BGP config")
+        d.config(bgp_config(env, router, skip_teardown=True))
+        d.save()
+        print(f"[{router}] BGP config applied")
+    finally:
+        d.close()
 
 
 def do_license(env, router):

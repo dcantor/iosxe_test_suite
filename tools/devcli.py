@@ -19,6 +19,42 @@ PROMPT = "REGEXP:" + PROMPT_RE
 CONFIRM_RE = r"\[(?:yes/no|confirm|no|yes)\][:\s]*$"
 
 
+# Messages that begin like a refusal but are not one. These are what IOS says
+# when a line is re-applied unchanged, which provisioning does constantly
+# because every phase is written to be idempotent.
+BENIGN_PREFIXES = ("% Note: ", "% Warning: ")
+# Re-applying a line that is already in place draws a complaint that reads like
+# a refusal but means the opposite -- the configuration is exactly as asked.
+# "% Policy already has same proposal set", "% Already found same 'match
+# identity' statement", "% Profile already contains this keyring". Provisioning
+# re-applies constantly because every phase is written to be idempotent, so the
+# word is treated as the signal rather than enumerating each message.
+BENIGN_WORD = "already"
+
+
+def _rejected(out):
+    """Whether IOS refused a configuration line.
+
+    Matching on "Invalid input" alone was too narrow: the device refuses plenty
+    of things in other words -- "% Authentication string exceeds 8 character
+    maximum", "% Incomplete command", "% Ambiguous command" -- and every one of
+    those was being accepted silently, leaving the command absent from the
+    configuration with nothing to show for it.
+
+    A leading "% " is the marker. The space matters: log messages share the
+    percent sign but never the space ("%SYS-6-LOGGINGHOST_STARTSTOP"), and they
+    arrive inline whenever console logging is on.
+    """
+    for line in out.splitlines():
+        line = line.lstrip()
+        if not line.startswith("% "):
+            continue
+        if line.startswith(BENIGN_PREFIXES) or BENIGN_WORD in line.lower():
+            continue
+        return True
+    return False
+
+
 def port_open(host, port, timeout=5):
     try:
         with socket.create_connection((host, port), timeout=timeout):
@@ -90,7 +126,7 @@ class Device:
         for line in lines:
             out = self.run(line)
             results.append((line, out))
-            if not ignore_errors and "%" in out and "Invalid input" in out:
+            if not ignore_errors and _rejected(out):
                 self.run("end")
                 raise RuntimeError(f"{self.name}: rejected {line!r}: {out.strip()}")
         self.run("end")
